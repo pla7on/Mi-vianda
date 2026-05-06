@@ -82,11 +82,11 @@
   .btn-edit { background: var(--cream); color: var(--text-mid); }
   .btn-delete { background: var(--cream); color: var(--text-mid); }
   .btn-expand { background: var(--cream); color: var(--text-mid); font-size: 16px; }
-  .client-body { padding: 0 12px 16px; }
+  .client-body { padding: 0 14px 18px; }
  
   /* WEEKS */
-  .week-section { margin-top: 16px; }
-  .week-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 2px dashed var(--border); flex-wrap: wrap; gap: 6px; }
+  .week-section { margin-top: 18px; }
+  .week-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 2px dashed var(--border); flex-wrap: wrap; gap: 6px; }
   .week-title { font-size: 12px; font-weight: 800; color: var(--text-mid); text-transform: uppercase; letter-spacing: .6px; }
   .week-total-area { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .week-total-badge { font-size: 13px; font-weight: 900; color: var(--sage-dark); background: var(--success-bg); padding: 3px 12px; border-radius: 50px; border: 1.5px solid #a8ddc0; }
@@ -95,22 +95,47 @@
   .paid-toggle.unpaid { background: var(--warning-bg); color: var(--warning); border-color: #f5c98a; }
  
   /* DAYS GRID */
-  .days-grid-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
-  .days-grid { display: grid; grid-template-columns: repeat(5, minmax(58px,1fr)); gap: 6px; min-width: 300px; }
-  .day-cell { background: var(--cream); border: 2px solid var(--border); border-radius: var(--radius-sm); padding: 8px 5px; text-align: center; }
-  .day-name { font-size: 10px; font-weight: 800; color: var(--text-light); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 4px; }
-  .day-date { font-size: 9px; color: var(--text-light); margin-bottom: 6px; }
-  .service-row { display: flex; flex-direction: column; gap: 4px; }
-  .service-check { display: flex; align-items: center; justify-content: space-between; padding: 3px 4px; border-radius: 6px; font-size: 10px; font-weight: 700; gap: 3px; }
-  .service-check span { flex: 1; text-align: left; }
-  .check-btn { width: 28px; height: 28px; border-radius: 7px; border: 2px solid; cursor: pointer; font-size: 14px; font-weight: 900; transition: all .15s; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: transparent; }
+  .days-grid-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 6px; }
+  .days-grid { display: grid; grid-template-columns: repeat(5, minmax(68px,1fr)); gap: 8px; min-width: 340px; }
+  .day-cell {
+    background: var(--warm-white); border: 1.5px solid var(--border);
+    border-radius: 12px; padding: 10px 6px 10px; text-align: center;
+    box-shadow: 0 1px 4px rgba(90,122,94,0.07);
+  }
+  .day-name {
+    font-size: 11px; font-weight: 800; color: var(--text-light);
+    text-transform: uppercase; letter-spacing: .5px; margin-bottom: 2px;
+  }
+  .day-date {
+    font-size: 15px; font-weight: 900; color: var(--text-dark);
+    margin-bottom: 8px; line-height: 1;
+  }
+  .service-row { display: flex; flex-direction: column; gap: 5px; }
+  .service-check {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 4px; padding: 6px 4px; border-radius: 8px;
+  }
+  .service-check span {
+    font-size: 10px; font-weight: 800; color: var(--text-mid);
+    text-align: center; letter-spacing: .2px;
+  }
+  .check-btn {
+    width: 32px; height: 32px; border-radius: 8px; border: 2px solid;
+    cursor: pointer; font-size: 16px; font-weight: 900; transition: all .15s;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; background: transparent;
+  }
   .sc-almuerzo { background: #fff8f0; }
-  .sc-almuerzo .check-btn { border-color: #fcd5a0; color: #cca060; }
+  .sc-almuerzo .check-btn { border-color: #fcd5a0; color: #e07b00; }
   .sc-almuerzo .check-btn.checked { background: #e07b00; border-color: #e07b00; color: white; }
   .sc-cena { background: #f5f0ff; }
   .sc-cena .check-btn { border-color: #c9b7f0; color: #9b7de0; }
   .sc-cena .check-btn.checked { background: #6a3bbf; border-color: #6a3bbf; color: white; }
-  .day-subtotal { font-size: 10px; font-weight: 800; color: var(--sage-dark); margin-top: 5px; }
+  .day-subtotal {
+    font-size: 10px; font-weight: 800; color: var(--sage-dark);
+    margin-top: 6px; background: var(--success-bg);
+    border-radius: 6px; padding: 2px 4px;
+  }
  
   /* MONTHLY TOTAL */
   .monthly-total-section { margin-top: 14px; padding: 14px 16px; background: linear-gradient(135deg,#f0f7f1,#e8f4ea); border: 2px solid #c0dcc4; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
