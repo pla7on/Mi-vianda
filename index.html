@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>MiVianda — Gestión de Pedidos</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -607,6 +610,25 @@ function monthTotal(clientId, yearMonth) {
 }
 function totalEarnedMonth(yearMonth) { return data.clients.reduce((s,c)=>s+monthTotal(c.id,yearMonth),0); }
 
+// Solo lo efectivamente cobrado (semanas/meses marcados como pagados)
+function totalCollectedMonth(yearMonth, onlyClientId=null) {
+  const clients = onlyClientId
+    ? data.clients.filter(c=>c.id===onlyClientId)
+    : data.clients;
+  return clients.reduce((s, client) => {
+    if (client.payPref === 'mensual') {
+      const mPaid = data.monthPaid[`${client.id}_${yearMonth}`];
+      return s + (mPaid === 'paid' ? monthTotal(client.id, yearMonth) : 0);
+    } else {
+      const weeks = getWeeksOfMonth(yearMonth);
+      return s + weeks.reduce((ws, wk) => {
+        const wk_key = weekKey(client.id, wk);
+        return ws + (data.weekPaid[wk_key] === 'paid' ? weekTotal(client.id, wk, client, yearMonth) : 0);
+      }, 0);
+    }
+  }, 0);
+}
+
 // Calcula cuánto falta cobrar (semanas no marcadas como pagadas) para clientes semanales
 function pendingTotal(clientId, yearMonth) {
   const client = data.clients.find(c=>c.id===clientId);
@@ -626,10 +648,11 @@ function renderAll() {
   data.config.activeMonth = ym;
   saveData();
   // Guardar qué tarjetas están colapsadas antes de re-renderizar
+  // Si es la primera vez (no hay cards en DOM), colapsar todas por defecto
   const collapsed = {};
   data.clients.forEach(c => {
     const card = document.getElementById('card_' + c.id);
-    if (card) collapsed[c.id] = card.classList.contains('collapsed');
+    collapsed[c.id] = card ? card.classList.contains('collapsed') : true;
   });
   renderMonthSummary(ym);
   renderClients(ym, collapsed);
@@ -639,7 +662,12 @@ function renderAll() {
 function renderMonthSummary(ym) {
   const [yr,mo] = ym.split('-').map(Number);
   document.getElementById('summaryMonth').textContent = `${MONTHS_ES[mo-1]} ${yr}`;
-  document.getElementById('summaryTotal').textContent = formatGs(totalEarnedMonth(ym));
+  const collected = totalCollectedMonth(ym);
+  const total = totalEarnedMonth(ym);
+  const pending = total - collected;
+  document.getElementById('summaryTotal').textContent = formatGs(collected);
+  const sub = document.getElementById('summaryMonth');
+  sub.textContent = `${MONTHS_ES[mo-1]} ${yr}${pending > 0 ? `  ·  Pendiente: ${formatGs(pending)}` : ''}`;
   const chips = document.getElementById('summaryChips');
   chips.innerHTML = `
     <div class="summary-chip"><div class="chip-num">${data.clients.length}</div><div class="chip-label">Clientes</div></div>
@@ -651,7 +679,15 @@ function renderClients(ym, collapsed={}) {
   const empty = document.getElementById('clientsEmpty');
   if (data.clients.length===0) { grid.innerHTML=''; empty.style.display=''; return; }
   empty.style.display='none';
-  grid.innerHTML = data.clients.map(c=>renderClientCard(c,ym,collapsed[c.id]||false)).join('');
+  // collapsed = estado actual del DOM (para re-renders); openCards = estado guardado
+  grid.innerHTML = data.clients.map(c => {
+    const domCollapsed = collapsed[c.id];
+    // Si hay estado del DOM úsalo, si no usa el guardado, si no hay nada empieza colapsado
+    const isOpen = (domCollapsed !== undefined)
+      ? !domCollapsed
+      : (data.openCards && data.openCards[c.id] === true);
+    return renderClientCard(c, ym, !isOpen);
+  }).join('');
 }
 function renderClientCard(client, ym, isCollapsed=false) {
   const weeks = getWeeksOfMonth(ym);
@@ -678,8 +714,8 @@ function renderClientCard(client, ym, isCollapsed=false) {
       <div class="total-label">Total mes</div>
       <div class="total-val">${formatGs(mTotal)}</div>
       ${pending > 0
-        ? `<div class="pending-val"><i class="fa-regular fa-clock" style="font-size:9px"></i> Pendiente: ${formatGs(pending)}</div>`
-        : mTotal > 0 ? `<div class="pending-val all-paid"><i class="fa-solid fa-check" style="font-size:9px"></i> Todo cobrado</div>` : ''
+        ? `<div class="pending-val"><i class="fa-regular fa-clock"></i> ${formatGs(pending)}</div>`
+        : mTotal > 0 ? `<div class="pending-val all-paid"><i class="fa-solid fa-check" style="font-size:9px"></i></div>` : ''
       }
     </div>` : `
     <div class="client-total-header">
@@ -687,8 +723,8 @@ function renderClientCard(client, ym, isCollapsed=false) {
       <div class="total-val">${formatGs(mTotal)}</div>
       ${mTotal > 0
         ? mPaid === 'paid'
-          ? `<div class="pending-val all-paid" onclick="event.stopPropagation();toggleMonthPaid('${client.id}','${ym}')" style="cursor:pointer"><i class="fa-solid fa-check" style="font-size:9px"></i> Cobrado</div>`
-          : `<div class="pending-val" onclick="event.stopPropagation();toggleMonthPaid('${client.id}','${ym}')" style="cursor:pointer"><i class="fa-regular fa-clock" style="font-size:9px"></i> Pendiente: ${formatGs(mTotal)}</div>`
+          ? `<div class="pending-val all-paid"><i class="fa-solid fa-check" style="font-size:9px"></i></div>`
+          : `<div class="pending-val"><i class="fa-regular fa-clock"></i> ${formatGs(mTotal)}</div>`
         : ''
       }
     </div>`;
@@ -764,6 +800,9 @@ function renderWeek(client, weekDays, weekNum, ym) {
 function toggleCollapse(clientId) {
   const card=document.getElementById('card_'+clientId);
   card.classList.toggle('collapsed');
+  if (!data.openCards) data.openCards = {};
+  data.openCards[clientId] = !card.classList.contains('collapsed');
+  saveData();
   const btn=card.querySelector('.btn-expand');
   btn.innerHTML=card.classList.contains('collapsed')?'<i class="fa-solid fa-chevron-right"></i>':'<i class="fa-solid fa-chevron-down"></i>';
 }
@@ -801,7 +840,7 @@ function deleteInversion(ym,id) {
 function renderInversiones(ym) {
   const invs=data.inversiones[ym]||[];
   const totalInv=invs.reduce((s,x)=>s+x.amount,0);
-  const earned=totalEarnedMonth(ym);
+  const earned=totalCollectedMonth(ym);
   const net=earned-totalInv;
   document.getElementById('invTotal').textContent=formatGs(totalInv);
   document.getElementById('invCount').textContent=`${invs.length} compra${invs.length!==1?'s':''} registrada${invs.length!==1?'s':''}`;
@@ -831,7 +870,7 @@ const ALL_MONTHS=['2026-05','2026-06','2026-07','2026-08','2026-09','2026-10','2
 const ALL_MONTHS_LABELS=['May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 function getAnnualData() {
   return ALL_MONTHS.map((ym,i)=>{
-    const ganancia=totalEarnedMonth(ym);
+    const ganancia=totalCollectedMonth(ym);
     const inversion=(data.inversiones[ym]||[]).reduce((s,x)=>s+x.amount,0);
     const neto=ganancia-inversion;
     return {ym,label:ALL_MONTHS_LABELS[i],ganancia,inversion,neto,margen:ganancia>0?Math.round((neto/ganancia)*100):0};
@@ -867,7 +906,7 @@ function renderResumen() {
     <td class="${totNeto>=0?'tbl-pos':'tbl-neg'}" style="font-weight:900">${formatGs(totNeto)}</td>
     <td class="${totGan>0?(Math.round(totNeto/totGan*100)>=0?'tbl-pos':'tbl-neg'):''}">${totGan>0?Math.round(totNeto/totGan*100)+'%':'—'}</td>
   </tr>`;
-  const clientTotals=data.clients.map(c=>({name:c.name,total:ALL_MONTHS.reduce((s,ym)=>s+monthTotal(c.id,ym),0)})).sort((a,b)=>b.total-a.total);
+  const clientTotals=data.clients.map(c=>({name:c.name,total:ALL_MONTHS.reduce((s,ym)=>s+totalCollectedMonth(ym,c.id),0)})).sort((a,b)=>b.total-a.total);
   const maxC=Math.max(...clientTotals.map(c=>c.total),1);
   const colors=['#7a9e7e','#5a80c0','#c87941','#9b7de0','#4a9b6f','#d4853a'];
   document.getElementById('clientBars').innerHTML=clientTotals.length===0
