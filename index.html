@@ -5,7 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MiVianda — Gestión de Pedidos</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <style>
+  /* Fix zoom en iOS — todos los inputs deben ser mínimo 16px */
+  input, select, textarea { font-size: 16px !important; }
   :root {
     --sage: #7a9e7e; --sage-light: #a8c5ac; --sage-dark: #5a7a5e;
     --cream: #faf7f2; --cream-dark: #f0ebe0; --warm-white: #fffdf9;
@@ -20,7 +23,14 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body { font-family: 'Nunito', sans-serif; background: var(--cream); color: var(--text-dark); min-height: 100vh; }
- 
+
+  /* ICONS */
+  .ic { font-size: 15px; line-height: 1; flex-shrink: 0; }
+  .ic-sm { font-size: 12px; }
+  .ic-lg { font-size: 20px; }
+  .nav-btn .ic { font-size: 16px; }
+  .nav-btn.active .ic { color: white; }
+
   /* HEADER */
   header { background: var(--warm-white); border-bottom: 2px solid var(--border); padding: 0 16px; display: flex; align-items: center; justify-content: space-between; height: 60px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 16px rgba(90,122,94,0.08); }
   .logo { display: flex; align-items: center; gap: 8px; }
@@ -33,12 +43,12 @@
   .nav-btn .nav-label { font-size: 10px; font-weight: 800; }
   .nav-btn:hover { background: var(--cream-dark); color: var(--text-dark); }
   .nav-btn.active { background: var(--sage); color: white; border-color: var(--sage-dark); box-shadow: 0 2px 10px rgba(90,122,94,0.3); }
- 
+
   /* TABS */
   .tab-content { display: none; }
   .tab-content.active { display: block; }
   .page { max-width: 1200px; margin: 0 auto; padding: 16px 14px 32px; }
- 
+
   /* CONFIG BAR */
   .config-bar { background: var(--warm-white); border: 2px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; display: flex; flex-direction: column; gap: 12px; box-shadow: var(--card-shadow); }
   .config-prices-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -50,7 +60,7 @@
   .month-selector select { width: 100%; padding: 10px 12px; border-radius: var(--radius-sm); border: 2px solid var(--border); font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 700; background: var(--cream); color: var(--text-dark); cursor: pointer; outline: none; -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238fa091' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
   .btn-add { padding: 10px 18px; border-radius: 50px; white-space: nowrap; background: var(--sage); color: white; border: none; font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 800; cursor: pointer; transition: all .2s; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 10px rgba(90,122,94,0.25); }
   .btn-add:active { background: var(--sage-dark); }
- 
+
   /* MONTH SUMMARY */
   .month-summary { background: linear-gradient(135deg, var(--sage-dark), var(--sage)); border-radius: var(--radius); padding: 20px 18px; color: white; margin-bottom: 16px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 4px 24px rgba(90,122,94,0.3); }
   .month-summary h2 { font-size: 13px; opacity: .85; font-weight: 600; margin-bottom: 2px; }
@@ -60,7 +70,7 @@
   .summary-chip { background: rgba(255,255,255,0.18); border-radius: 10px; padding: 10px 8px; text-align: center; }
   .summary-chip .chip-num { font-size: 20px; font-weight: 900; }
   .summary-chip .chip-label { font-size: 10px; opacity: .85; font-weight: 700; margin-top: 2px; }
- 
+
   /* CLIENT CARDS */
   .clients-grid { display: flex; flex-direction: column; gap: 14px; }
   .client-card { background: var(--warm-white); border: 2px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--card-shadow); }
@@ -69,7 +79,7 @@
   .client-info { flex: 1; min-width: 0; }
   .client-name { font-size: 15px; font-weight: 800; color: var(--text-dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .client-badges { display: flex; gap: 4px; margin-top: 3px; flex-wrap: wrap; }
-  .badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 50px; }
+  .badge { font-size: 12px; font-weight: 700; padding: 4px 8px; border-radius: 50px; display: inline-flex; align-items: center; justify-content: center; }
   .badge-almuerzo { background: #fff3e0; color: #e07b00; border: 1px solid #fcd5a0; }
   .badge-cena { background: #ede7f6; color: #6a3bbf; border: 1px solid #c9b7f0; }
   .badge-pref { background: var(--success-bg); color: var(--success); border: 1px solid #a8ddc0; }
@@ -77,13 +87,15 @@
   .client-total-header { text-align: right; flex-shrink: 0; }
   .client-total-header .total-label { font-size: 10px; color: var(--text-light); font-weight: 700; }
   .client-total-header .total-val { font-size: 16px; font-weight: 900; color: var(--sage-dark); }
+  .pending-val { font-size: 10px; font-weight: 700; color: var(--warning); margin-top: 2px; }
+  .pending-val.all-paid { color: var(--success); }
   .client-actions { display: flex; gap: 6px; flex-shrink: 0; }
   .btn-icon { width: 32px; height: 32px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px; transition: all .15s; display: flex; align-items: center; justify-content: center; }
   .btn-edit { background: var(--cream); color: var(--text-mid); }
   .btn-delete { background: var(--cream); color: var(--text-mid); }
   .btn-expand { background: var(--cream); color: var(--text-mid); font-size: 16px; }
   .client-body { padding: 0 14px 18px; }
- 
+
   /* WEEKS */
   .week-section { margin-top: 18px; }
   .week-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 2px dashed var(--border); flex-wrap: wrap; gap: 6px; }
@@ -93,7 +105,7 @@
   .paid-toggle { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; cursor: pointer; padding: 5px 10px; border-radius: 50px; border: 2px solid var(--border); background: var(--cream); color: var(--text-mid); transition: all .2s; user-select: none; }
   .paid-toggle.paid { background: var(--success-bg); color: var(--success); border-color: #a8ddc0; }
   .paid-toggle.unpaid { background: var(--warning-bg); color: var(--warning); border-color: #f5c98a; }
- 
+
   /* DAYS GRID */
   .days-grid-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 6px; }
   .days-grid { display: grid; grid-template-columns: repeat(5, minmax(68px,1fr)); gap: 8px; min-width: 340px; }
@@ -136,7 +148,7 @@
     margin-top: 6px; background: var(--success-bg);
     border-radius: 6px; padding: 2px 4px;
   }
- 
+
   /* MONTHLY TOTAL */
   .monthly-total-section { margin-top: 14px; padding: 14px 16px; background: linear-gradient(135deg,#f0f7f1,#e8f4ea); border: 2px solid #c0dcc4; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
   .monthly-total-section .mt-label { font-size: 13px; font-weight: 800; color: var(--sage-dark); }
@@ -144,7 +156,7 @@
   .monthly-paid-toggle { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; cursor: pointer; padding: 7px 14px; border-radius: 50px; border: 2px solid; transition: all .2s; user-select: none; }
   .monthly-paid-toggle.paid { background: var(--success-bg); color: var(--success); border-color: #a8ddc0; }
   .monthly-paid-toggle.unpaid { background: var(--warning-bg); color: var(--warning); border-color: #f5c98a; }
- 
+
   /* MODAL */
   .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(45,58,46,0.5); z-index: 200; align-items: flex-end; justify-content: center; backdrop-filter: blur(3px); }
   .modal-overlay.open { display: flex; }
@@ -157,7 +169,7 @@
   .form-group input:focus, .form-group select:focus { border-color: var(--sage); }
   .form-row { display: flex; gap: 10px; }
   .form-row .form-group { flex: 1; }
- 
+
   /* CHECKBOXES — custom visual */
   .checkbox-row { display: flex; gap: 12px; }
   .checkbox-label { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 700; color: var(--text-mid); cursor: pointer; user-select: none; padding: 12px 16px; background: var(--cream); border: 2px solid var(--border); border-radius: var(--radius-sm); flex: 1; transition: background .15s, border-color .15s, color .15s; }
@@ -174,11 +186,11 @@
   .checkbox-label.checked {
     background: var(--success-bg); border-color: var(--sage); color: var(--sage-dark);
   }
- 
+
   .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
   .btn-modal-cancel { flex: 1; padding: 14px; border-radius: var(--radius-sm); border: 2px solid var(--border); background: var(--cream); font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 700; color: var(--text-mid); cursor: pointer; }
   .btn-modal-save { flex: 2; padding: 14px; border-radius: var(--radius-sm); border: none; background: var(--sage); font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 800; color: white; cursor: pointer; box-shadow: 0 2px 10px rgba(90,122,94,0.3); }
- 
+
   /* INVERSIONES */
   .inv-layout { display: flex; flex-direction: column; gap: 16px; }
   .inv-summary-card { background: linear-gradient(135deg, var(--terracotta), var(--terracotta-light)); border-radius: var(--radius); padding: 22px 20px; color: white; box-shadow: 0 6px 28px rgba(200,121,65,0.35); }
@@ -201,7 +213,7 @@
   .inv-item-info .inv-item-date { font-size: 11px; color: var(--text-light); margin-top: 2px; }
   .inv-item-amount { font-size: 16px; font-weight: 900; color: var(--terracotta); }
   .btn-del-inv { background: var(--danger-bg); color: var(--danger); border: none; border-radius: 7px; width: 30px; height: 30px; cursor: pointer; font-size: 13px; margin-left: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
- 
+
   /* UTILITIES */
   .empty-state { text-align: center; padding: 40px 20px; color: var(--text-light); }
   .empty-state .empty-icon { font-size: 44px; margin-bottom: 12px; opacity: .5; }
@@ -214,7 +226,7 @@
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: var(--cream); }
   ::-webkit-scrollbar-thumb { background: var(--sage-light); border-radius: 3px; }
- 
+
   /* RESUMEN ANUAL */
   .resumen-header-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
   .kpi-card { border-radius: var(--radius); padding: 18px 16px 14px; box-shadow: var(--card-shadow); position: relative; overflow: hidden; }
@@ -259,7 +271,7 @@
   .chart-legend { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 10px; }
   .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; color: var(--text-mid); }
   .legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
- 
+
   /* DESKTOP */
   @media(min-width: 640px) {
     header { padding: 0 28px; height: 66px; }
@@ -293,39 +305,39 @@
 </style>
 </head>
 <body>
- 
+
 <header>
   <div class="logo">
-    <div class="logo-icon">🍱</div>
+    <div class="logo-icon"><i class="fa-solid fa-bowl-food" style="color:white;font-size:16px"></i></div>
     <span class="logo-text">Mi<span>Vianda</span></span>
   </div>
   <nav>
     <button class="nav-btn active" onclick="showTab('clientes')">
-      <span class="nav-icon">🧑‍🤝‍🧑</span><span class="nav-label">Clientes</span>
+      <i class="fa-solid fa-users ic"></i><span class="nav-label">Clientes</span>
     </button>
     <button class="nav-btn" onclick="showTab('inversiones')">
-      <span class="nav-icon">📦</span><span class="nav-label">Inversiones</span>
+      <i class="fa-solid fa-box ic"></i><span class="nav-label">Inversiones</span>
     </button>
     <button class="nav-btn" onclick="showTab('resumen')">
-      <span class="nav-icon">📊</span><span class="nav-label">Resumen</span>
+      <i class="fa-solid fa-chart-line ic"></i><span class="nav-label">Resumen</span>
     </button>
   </nav>
 </header>
- 
+
 <!-- TAB: CLIENTES -->
 <div id="tab-clientes" class="tab-content active">
 <div class="page">
   <div class="config-bar">
     <div class="config-prices-row">
       <div>
-        <label>💰 Precio Almuerzo</label>
+        <label><i class="fa-solid fa-utensils ic-sm"></i> Precio Almuerzo</label>
         <div class="config-price">
           <span>Gs.</span>
           <input type="number" id="precioAlmuerzo" value="15000" min="0" step="500" onchange="saveConfig();renderAll()">
         </div>
       </div>
       <div>
-        <label>🌙 Precio Cena</label>
+        <label><i class="fa-solid fa-moon ic-sm"></i> Precio Cena</label>
         <div class="config-price">
           <span>Gs.</span>
           <input type="number" id="precioCena" value="15000" min="0" step="500" onchange="saveConfig();renderAll()">
@@ -334,10 +346,10 @@
     </div>
     <div class="config-bottom-row">
       <div class="month-selector">
-        <label>📅 Mes activo</label>
+        <label><i class="fa-solid fa-calendar ic-sm"></i> Mes activo</label>
         <select id="monthSelect" onchange="saveConfig();renderAll()"></select>
       </div>
-      <button class="btn-add" onclick="openModal()">＋ Nuevo Cliente</button>
+      <button class="btn-add" onclick="openModal()"><i class="fa-solid fa-plus"></i> Nuevo Cliente</button>
     </div>
   </div>
   <div class="month-summary" id="monthSummary">
@@ -348,36 +360,36 @@
     </div>
     <div class="summary-chips" id="summaryChips"></div>
   </div>
-  <div class="section-title">👤 Mis Clientes</div>
+  <div class="section-title"><i class="fa-solid fa-users ic-sm"></i> Mis Clientes</div>
   <div class="clients-grid" id="clientsGrid"></div>
   <div class="empty-state" id="clientsEmpty" style="display:none">
-    <div class="empty-icon">👨‍🍳</div>
+    <div class="empty-icon"><i class="fa-solid fa-bowl-food" style="font-size:44px;opacity:.4;color:var(--sage)"></i></div>
     <p>Aún no hay clientes. ¡Agregá el primero!</p>
   </div>
 </div>
 </div>
- 
+
 <!-- TAB: INVERSIONES -->
 <div id="tab-inversiones" class="tab-content">
 <div class="page">
   <div class="inv-layout">
     <div>
       <div class="inv-summary-card">
-        <h3>💸 Total invertido este mes</h3>
+        <h3><i class="fa-solid fa-sack-dollar" style="margin-right:6px"></i> Total invertido este mes</h3>
         <div class="inv-big" id="invTotal">Gs. 0</div>
         <div class="inv-sub" id="invCount">0 compras registradas</div>
       </div>
       <div class="inv-net-card">
-        <div class="net-row"><span class="nr-label">✅ Ganado este mes</span><span class="nr-val green" id="netEarned">Gs. 0</span></div>
-        <div class="net-row"><span class="nr-label">📦 Inversiones</span><span class="nr-val red" id="netInv">− Gs. 0</span></div>
-        <div class="net-row"><span class="nr-label">🏆 Ganancia neta</span><span class="nr-val dark" id="netResult">Gs. 0</span></div>
+        <div class="net-row"><span class="nr-label"><i class="fa-solid fa-circle-check" style="color:var(--success);margin-right:5px"></i> Ganado este mes</span><span class="nr-val green" id="netEarned">Gs. 0</span></div>
+        <div class="net-row"><span class="nr-label"><i class="fa-solid fa-box" style="color:var(--terracotta);margin-right:5px"></i> Inversiones</span><span class="nr-val red" id="netInv">− Gs. 0</span></div>
+        <div class="net-row"><span class="nr-label"><i class="fa-solid fa-trophy" style="color:var(--warning);margin-right:5px"></i> Ganancia neta</span><span class="nr-val dark" id="netResult">Gs. 0</span></div>
       </div>
-      <div class="section-title">📋 Compras del mes</div>
+      <div class="section-title"><i class="fa-solid fa-list-ul ic-sm"></i> Compras del mes</div>
       <div id="invList"></div>
-      <div class="empty-state" id="invEmpty"><div class="empty-icon">🛒</div><p>Sin inversiones registradas este mes.</p></div>
+      <div class="empty-state" id="invEmpty"><div class="empty-icon"><i class="fa-solid fa-cart-shopping" style="font-size:44px;opacity:.4;color:var(--terracotta)"></i></div><p>Sin inversiones registradas este mes.</p></div>
     </div>
     <div class="inv-add-form">
-      <h4>➕ Registrar compra / inversión</h4>
+      <h4><i class="fa-solid fa-plus" style="margin-right:6px"></i> Registrar compra / inversión</h4>
       <div class="form-group"><label>Descripción del producto</label><input type="text" id="invName" placeholder="Ej: Pollo, verduras..."></div>
       <div class="form-group"><label>Monto (Gs.)</label><input type="number" id="invAmount" placeholder="0" min="0" step="500"></div>
       <div class="form-group"><label>Fecha</label><input type="date" id="invDate"></div>
@@ -386,12 +398,12 @@
   </div>
 </div>
 </div>
- 
+
 <!-- TAB: RESUMEN ANUAL -->
 <div id="tab-resumen" class="tab-content">
 <div class="page">
   <div class="capital-card">
-    <div class="cap-icon">💼</div>
+    <div class="cap-icon"><i class="fa-solid fa-briefcase ic-lg" style="color:var(--sage)"></i></div>
     <div class="cap-info"><h4>Capital inicial / actual</h4><p>El monto con el que empezaste o tu capital disponible actualmente</p></div>
     <div class="capital-input-wrap">
       <span>Gs.</span>
@@ -400,24 +412,24 @@
     </div>
   </div>
   <div class="resumen-header-cards">
-    <div class="kpi-card sage" data-icon="🍱"><div class="kpi-label">Ganancias del año</div><div class="kpi-val" id="kpiGanancias">Gs. 0</div><div class="kpi-sub" id="kpiGananciasSub">Almuerzos y cenas cobrados</div></div>
-    <div class="kpi-card terra" data-icon="📦"><div class="kpi-label">Inversiones del año</div><div class="kpi-val" id="kpiInversiones">Gs. 0</div><div class="kpi-sub" id="kpiInversionesSub">Total compras registradas</div></div>
-    <div class="kpi-card blue" data-icon="📈"><div class="kpi-label">Ganancia neta</div><div class="kpi-val" id="kpiNeta">Gs. 0</div><div class="kpi-sub">Ganancias − Inversiones</div></div>
-    <div class="kpi-card dark" data-icon="💼"><div class="kpi-label">Patrimonio total</div><div class="kpi-val" id="kpiPatrimonio">Gs. 0</div><div class="kpi-sub">Capital + Ganancia neta</div></div>
+    <div class="kpi-card sage"><div class="kpi-label">Ganancias del año</div><div class="kpi-val" id="kpiGanancias">Gs. 0</div><div class="kpi-sub" id="kpiGananciasSub">Almuerzos y cenas cobrados</div></div>
+    <div class="kpi-card terra"><div class="kpi-label">Inversiones del año</div><div class="kpi-val" id="kpiInversiones">Gs. 0</div><div class="kpi-sub" id="kpiInversionesSub">Total compras registradas</div></div>
+    <div class="kpi-card blue"><div class="kpi-label">Ganancia neta</div><div class="kpi-val" id="kpiNeta">Gs. 0</div><div class="kpi-sub">Ganancias − Inversiones</div></div>
+    <div class="kpi-card dark"><div class="kpi-label">Patrimonio total</div><div class="kpi-val" id="kpiPatrimonio">Gs. 0</div><div class="kpi-sub">Capital + Ganancia neta</div></div>
   </div>
   <div class="charts-grid">
-    <div class="chart-card"><h4>📈 Evolución mensual</h4><div class="chart-sub">Ganancias vs Inversiones por mes (Gs.)</div><div class="chart-wrap"><canvas id="chartBarras" height="220"></canvas></div><div class="chart-legend"><div class="legend-item"><div class="legend-dot" style="background:#7a9e7e"></div>Ganancias</div><div class="legend-item"><div class="legend-dot" style="background:#c87941"></div>Inversiones</div><div class="legend-item"><div class="legend-dot" style="background:#5a80c0"></div>Neto</div></div></div>
-    <div class="chart-card"><h4>🥧 Distribución del año</h4><div class="chart-sub">Proporción Ganancias / Inversiones / Neto</div><div class="chart-wrap" style="display:flex;justify-content:center"><canvas id="chartDonut" height="200" width="200"></canvas></div><div class="chart-legend" id="donutLegend" style="justify-content:center"></div></div>
+    <div class="chart-card"><h4><i class="fa-solid fa-chart-bar" style="color:var(--sage);margin-right:6px"></i> Evolución mensual</h4><div class="chart-sub">Ganancias vs Inversiones por mes (Gs.)</div><div class="chart-wrap"><canvas id="chartBarras" height="220"></canvas></div><div class="chart-legend"><div class="legend-item"><div class="legend-dot" style="background:#7a9e7e"></div>Ganancias</div><div class="legend-item"><div class="legend-dot" style="background:#c87941"></div>Inversiones</div><div class="legend-item"><div class="legend-dot" style="background:#5a80c0"></div>Neto</div></div></div>
+    <div class="chart-card"><h4><i class="fa-solid fa-chart-pie" style="color:var(--terracotta);margin-right:6px"></i> Distribución del año</h4><div class="chart-sub">Proporción Ganancias / Inversiones / Neto</div><div class="chart-wrap" style="display:flex;justify-content:center"><canvas id="chartDonut" height="200" width="200"></canvas></div><div class="chart-legend" id="donutLegend" style="justify-content:center"></div></div>
   </div>
   <div class="charts-grid">
-    <div class="chart-card"><h4>📉 Margen de ganancia mensual</h4><div class="chart-sub">% de ganancia neta sobre lo cobrado</div><div class="chart-wrap"><canvas id="chartLinea" height="200"></canvas></div></div>
-    <div class="chart-card"><h4>👥 Rendimiento por cliente</h4><div class="chart-sub">Aporte de cada cliente al año</div><div id="clientBars" style="padding-top:4px"></div></div>
+    <div class="chart-card"><h4><i class="fa-solid fa-chart-line" style="color:#5a80c0;margin-right:6px"></i> Margen de ganancia mensual</h4><div class="chart-sub">% de ganancia neta sobre lo cobrado</div><div class="chart-wrap"><canvas id="chartLinea" height="200"></canvas></div></div>
+    <div class="chart-card"><h4><i class="fa-solid fa-ranking-star" style="color:var(--warning);margin-right:6px"></i> Rendimiento por cliente</h4><div class="chart-sub">Aporte de cada cliente al año</div><div id="clientBars" style="padding-top:4px"></div></div>
   </div>
-  <div class="section-title">📋 Desglose mensual</div>
+  <div class="section-title"><i class="fa-solid fa-table-list ic-sm"></i> Desglose mensual</div>
   <div class="chart-card" style="margin-bottom:0"><div style="overflow-x:auto"><table class="monthly-table"><thead><tr><th>Mes</th><th>Ganancias</th><th>Inversiones</th><th>Ganancia neta</th><th>Margen %</th></tr></thead><tbody id="monthlyTableBody"></tbody></table></div></div>
 </div>
 </div>
- 
+
 <!-- MODAL -->
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal" id="modalBox">
@@ -432,12 +444,12 @@
         <label class="checkbox-label" id="labelAlmuerzo">
           <input type="checkbox" id="hasAlmuerzo">
           <div class="custom-check" id="checkAlmuerzo">✓</div>
-          ☀️ Almuerzo
+          <i class="fa-solid fa-sun" style="color:#e07b00"></i> Almuerzo
         </label>
         <label class="checkbox-label" id="labelCena">
           <input type="checkbox" id="hasCena">
           <div class="custom-check" id="checkCena">✓</div>
-          🌙 Cena
+          <i class="fa-solid fa-moon" style="color:#6a3bbf"></i> Cena
         </label>
       </div>
     </div>
@@ -454,9 +466,9 @@
     </div>
   </div>
 </div>
- 
+
 <div class="toast" id="toast"></div>
- 
+
 <script>
 /* DATA */
 let data = {
@@ -470,7 +482,7 @@ function saveConfig() {
   data.config.precioCena = parseInt(document.getElementById('precioCena').value) || 0;
   saveData();
 }
- 
+
 /* MONTH HELPERS */
 const MONTHS_ES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const DAYS_ES = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
@@ -508,10 +520,10 @@ function initMonthSelect() {
   sel.value = sel.querySelector(`option[value="${nowVal}"]`) ? nowVal : '2026-05';
   if (data.config.activeMonth && sel.querySelector(`option[value="${data.config.activeMonth}"]`)) sel.value = data.config.activeMonth;
 }
- 
+
 /* MODAL */
 let editingClientId = null;
- 
+
 // Actualiza color del label segun estado del checkbox
 function updateCheckboxStyle(checkboxId, labelId) {
   const cb = document.getElementById(checkboxId);
@@ -523,7 +535,7 @@ function updateCheckboxStyle(checkboxId, labelId) {
     lb.classList.remove('checked');
   }
 }
- 
+
 function openModal(clientId=null) {
   editingClientId = clientId;
   document.getElementById('modalTitle').textContent = clientId ? 'Editar Cliente' : 'Nuevo Cliente';
@@ -547,27 +559,27 @@ function openModal(clientId=null) {
 function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); editingClientId=null; }
 function saveClient() {
   const name = document.getElementById('clientName').value.trim();
-  if (!name) { showToast('⚠️ Ingresá el nombre del cliente'); return; }
+  if (!name) { showToast('Ingresá el nombre del cliente'); return; }
   const almuerzo = document.getElementById('hasAlmuerzo').checked;
   const cena = document.getElementById('hasCena').checked;
-  if (!almuerzo && !cena) { showToast('⚠️ Seleccioná al menos un servicio'); return; }
+  if (!almuerzo && !cena) { showToast('Seleccioná al menos un servicio'); return; }
   const payPref = document.getElementById('payPref').value;
   if (editingClientId) {
     const c = data.clients.find(x=>x.id===editingClientId);
     c.name=name; c.almuerzo=almuerzo; c.cena=cena; c.payPref=payPref;
-    showToast('✅ Cliente actualizado');
+    showToast('Cliente actualizado');
   } else {
     data.clients.push({id:Date.now().toString(), name, almuerzo, cena, payPref});
-    showToast('✅ Cliente agregado');
+    showToast('Cliente agregado');
   }
   saveData(); closeModal(); renderAll();
 }
 function deleteClient(id) {
   if (!confirm('¿Eliminar este cliente?')) return;
   data.clients = data.clients.filter(c=>c.id!==id);
-  saveData(); renderAll(); showToast('🗑️ Cliente eliminado');
+  saveData(); renderAll(); showToast('Cliente eliminado');
 }
- 
+
 /* CHECK LOGIC */
 function checkKey(clientId, date, type) { return `${clientId}_${date}_${type}`; }
 function isChecked(clientId, date, type) { return data.checks[checkKey(clientId,date,type)] === true; }
@@ -594,14 +606,33 @@ function monthTotal(clientId, yearMonth) {
   return getWeeksOfMonth(yearMonth).reduce((s,wk)=>s+weekTotal(clientId,wk,client,yearMonth),0);
 }
 function totalEarnedMonth(yearMonth) { return data.clients.reduce((s,c)=>s+monthTotal(c.id,yearMonth),0); }
- 
+
+// Calcula cuánto falta cobrar (semanas no marcadas como pagadas) para clientes semanales
+function pendingTotal(clientId, yearMonth) {
+  const client = data.clients.find(c=>c.id===clientId);
+  if (!client || client.payPref !== 'semanal') return 0;
+  const weeks = getWeeksOfMonth(yearMonth);
+  return weeks.reduce((s, wk) => {
+    const wk_key = weekKey(clientId, wk);
+    const wTotal = weekTotal(clientId, wk, client, yearMonth);
+    if (data.weekPaid[wk_key] !== 'paid' && wTotal > 0) return s + wTotal;
+    return s;
+  }, 0);
+}
+
 /* RENDER */
 function renderAll() {
   const ym = getActiveMonth();
   data.config.activeMonth = ym;
   saveData();
+  // Guardar qué tarjetas están colapsadas antes de re-renderizar
+  const collapsed = {};
+  data.clients.forEach(c => {
+    const card = document.getElementById('card_' + c.id);
+    if (card) collapsed[c.id] = card.classList.contains('collapsed');
+  });
   renderMonthSummary(ym);
-  renderClients(ym);
+  renderClients(ym, collapsed);
   renderInversiones(ym);
   renderResumen();
 }
@@ -615,47 +646,73 @@ function renderMonthSummary(ym) {
     <div class="summary-chip"><div class="chip-num">${data.clients.filter(c=>c.almuerzo).length}</div><div class="chip-label">Con almuerzo</div></div>
     <div class="summary-chip"><div class="chip-num">${data.clients.filter(c=>c.cena).length}</div><div class="chip-label">Con cena</div></div>`;
 }
-function renderClients(ym) {
+function renderClients(ym, collapsed={}) {
   const grid = document.getElementById('clientsGrid');
   const empty = document.getElementById('clientsEmpty');
   if (data.clients.length===0) { grid.innerHTML=''; empty.style.display=''; return; }
   empty.style.display='none';
-  grid.innerHTML = data.clients.map(c=>renderClientCard(c,ym)).join('');
+  grid.innerHTML = data.clients.map(c=>renderClientCard(c,ym,collapsed[c.id]||false)).join('');
 }
-function renderClientCard(client, ym) {
+function renderClientCard(client, ym, isCollapsed=false) {
   const weeks = getWeeksOfMonth(ym);
   const mTotal = monthTotal(client.id,ym);
+  const pending = pendingTotal(client.id, ym);
   const initials = client.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
   const badgePay = client.payPref==='mensual'
-    ? '<span class="badge badge-pref-mensual">💳 Pago mensual</span>'
-    : '<span class="badge badge-pref">📆 Pago semanal</span>';
+    ? '<span class="badge badge-pref-mensual" title="Pago mensual"><i class="fa-solid fa-credit-card"></i></span>'
+    : '<span class="badge badge-pref" title="Pago semanal"><i class="fa-solid fa-calendar-week"></i></span>';
   const weeksHTML = weeks.map((wd,wi)=>renderWeek(client,wd,wi+1,ym)).join('');
   const mPaidKey = `${client.id}_${ym}`;
   const mPaid = data.monthPaid[mPaidKey];
   const monthlySection = client.payPref==='mensual' ? `
     <div class="monthly-total-section">
-      <div><div class="mt-label">💳 Total mes — ${client.name}</div><div class="mt-val">${formatGs(mTotal)}</div></div>
+      <div><div class="mt-label"><i class="fa-solid fa-credit-card" style="margin-right:5px;color:var(--sage)"></i> Total mes — ${client.name}</div><div class="mt-val">${formatGs(mTotal)}</div></div>
       <div class="monthly-paid-toggle ${mPaid==='paid'?'paid':'unpaid'}" onclick="toggleMonthPaid('${client.id}','${ym}')">
-        ${mPaid==='paid'?'✅ Cobrado':'⏳ Pendiente'}
+        ${mPaid==='paid'?'<i class="fa-solid fa-check"></i> Cobrado':'<i class="fa-regular fa-clock"></i> Pendiente'}
       </div>
     </div>` : '';
+
+  // Para clientes semanales: mostrar total y pendiente en el header
+  const totalHeaderHTML = client.payPref === 'semanal' ? `
+    <div class="client-total-header">
+      <div class="total-label">Total mes</div>
+      <div class="total-val">${formatGs(mTotal)}</div>
+      ${pending > 0
+        ? `<div class="pending-val"><i class="fa-regular fa-clock" style="font-size:9px"></i> Pendiente: ${formatGs(pending)}</div>`
+        : mTotal > 0 ? `<div class="pending-val all-paid"><i class="fa-solid fa-check" style="font-size:9px"></i> Todo cobrado</div>` : ''
+      }
+    </div>` : `
+    <div class="client-total-header">
+      <div class="total-label">Total mes</div>
+      <div class="total-val">${formatGs(mTotal)}</div>
+      ${mTotal > 0
+        ? mPaid === 'paid'
+          ? `<div class="pending-val all-paid" onclick="event.stopPropagation();toggleMonthPaid('${client.id}','${ym}')" style="cursor:pointer"><i class="fa-solid fa-check" style="font-size:9px"></i> Cobrado</div>`
+          : `<div class="pending-val" onclick="event.stopPropagation();toggleMonthPaid('${client.id}','${ym}')" style="cursor:pointer"><i class="fa-regular fa-clock" style="font-size:9px"></i> Pendiente: ${formatGs(mTotal)}</div>`
+        : ''
+      }
+    </div>`;
+
+  const collapsedClass = isCollapsed ? 'collapsed' : '';
+  const chevronIcon = isCollapsed ? 'fa-chevron-right' : 'fa-chevron-down';
+
   return `
-  <div class="client-card" id="card_${client.id}">
+  <div class="client-card ${collapsedClass}" id="card_${client.id}">
     <div class="client-header" onclick="toggleCollapse('${client.id}')">
       <div class="client-avatar">${initials}</div>
       <div class="client-info">
         <div class="client-name">${client.name}</div>
         <div class="client-badges">
-          ${client.almuerzo?'<span class="badge badge-almuerzo">☀️ Almuerzo</span>':''}
-          ${client.cena?'<span class="badge badge-cena">🌙 Cena</span>':''}
+          ${client.almuerzo?'<span class="badge badge-almuerzo" title="Almuerzo"><i class="fa-solid fa-sun"></i></span>':''}
+          ${client.cena?'<span class="badge badge-cena" title="Cena"><i class="fa-solid fa-moon"></i></span>':''}
           ${badgePay}
         </div>
       </div>
-      <div class="client-total-header"><div class="total-label">Total mes</div><div class="total-val">${formatGs(mTotal)}</div></div>
+      ${totalHeaderHTML}
       <div class="client-actions" onclick="event.stopPropagation()">
-        <button class="btn-icon btn-edit" onclick="openModal('${client.id}')">✏️</button>
-        <button class="btn-icon btn-delete" onclick="deleteClient('${client.id}')">🗑️</button>
-        <button class="btn-icon btn-expand">▾</button>
+        <button class="btn-icon btn-edit" onclick="openModal('${client.id}')"><i class="fa-solid fa-pen"></i></button>
+        <button class="btn-icon btn-delete" onclick="deleteClient('${client.id}')"><i class="fa-solid fa-trash"></i></button>
+        <button class="btn-icon btn-expand"><i class="fa-solid ${chevronIcon}"></i></button>
       </div>
     </div>
     <div class="client-body">${weeksHTML}${monthlySection}</div>
@@ -672,16 +729,16 @@ function renderWeek(client, weekDays, weekNum, ym) {
     let services='';
     if (client.almuerzo) {
       const checked=isChecked(client.id,dateStr,'almuerzo');
-      services+=`<div class="service-check sc-almuerzo"><span>☀️ Alm.</span>
+      services+=`<div class="service-check sc-almuerzo"><span><i class="fa-solid fa-sun" style="font-size:11px"></i> Alm.</span>
         <button class="check-btn ${checked?'checked':''}" ${inMonth?`onclick="toggleCheck('${client.id}','${dateStr}','almuerzo')"`:''} ${inMonth?'':'disabled'}>
-          ${checked?'✓':'○'}
+          ${checked?'<i class="fa-solid fa-check" style="font-size:12px"></i>':''}
         </button></div>`;
     }
     if (client.cena) {
       const checked=isChecked(client.id,dateStr,'cena');
-      services+=`<div class="service-check sc-cena"><span>🌙 Cena</span>
+      services+=`<div class="service-check sc-cena"><span><i class="fa-solid fa-moon" style="font-size:11px"></i> Cena</span>
         <button class="check-btn ${checked?'checked':''}" ${inMonth?`onclick="toggleCheck('${client.id}','${dateStr}','cena')"`:''} ${inMonth?'':'disabled'}>
-          ${checked?'✓':'○'}
+          ${checked?'<i class="fa-solid fa-check" style="font-size:12px"></i>':''}
         </button></div>`;
     }
     const dTotal=inMonth?dayTotal(client.id,dateStr,client):0;
@@ -694,11 +751,11 @@ function renderWeek(client, weekDays, weekNum, ym) {
   }).join('');
   const toggleHTML = client.payPref==='semanal'?`
     <div class="paid-toggle ${paidState==='paid'?'paid':'unpaid'}" onclick="toggleWeekPaid('${client.id}','${wKey}')">
-      ${paidState==='paid'?'✅ Cobrado':'⏳ Pendiente'}
+      ${paidState==='paid'?'<i class="fa-solid fa-check"></i> Cobrado':'<i class="fa-regular fa-clock"></i> Pendiente'}
     </div>`:'';
   return `<div class="week-section">
     <div class="week-header">
-      <div class="week-title">📅 Semana ${weekNum}</div>
+      <div class="week-title"><i class="fa-solid fa-calendar-days" style="margin-right:5px;color:var(--text-light)"></i> Semana ${weekNum}</div>
       <div class="week-total-area"><div class="week-total-badge">${formatGs(wTotal)}</div>${toggleHTML}</div>
     </div>
     <div class="days-grid-scroll"><div class="days-grid">${daysHTML}</div></div>
@@ -707,38 +764,39 @@ function renderWeek(client, weekDays, weekNum, ym) {
 function toggleCollapse(clientId) {
   const card=document.getElementById('card_'+clientId);
   card.classList.toggle('collapsed');
-  card.querySelector('.btn-expand').textContent=card.classList.contains('collapsed')?'▸':'▾';
+  const btn=card.querySelector('.btn-expand');
+  btn.innerHTML=card.classList.contains('collapsed')?'<i class="fa-solid fa-chevron-right"></i>':'<i class="fa-solid fa-chevron-down"></i>';
 }
 function toggleWeekPaid(clientId,wk) {
   data.weekPaid[wk]=data.weekPaid[wk]==='paid'?'unpaid':'paid';
   saveData(); renderAll();
-  showToast(data.weekPaid[wk]==='paid'?'✅ Semana cobrada':'⏳ Pendiente');
+  showToast(data.weekPaid[wk]==='paid'?'Semana cobrada':'Pendiente');
 }
 function toggleMonthPaid(clientId,ym) {
   const k=`${clientId}_${ym}`;
   data.monthPaid[k]=data.monthPaid[k]==='paid'?'unpaid':'paid';
   saveData(); renderAll();
-  showToast(data.monthPaid[k]==='paid'?'✅ Mes cobrado':'⏳ Pendiente');
+  showToast(data.monthPaid[k]==='paid'?'Mes cobrado':'Pendiente');
 }
- 
+
 /* INVERSIONES */
 function addInversion() {
   const name=document.getElementById('invName').value.trim();
   const amount=parseInt(document.getElementById('invAmount').value)||0;
   const date=document.getElementById('invDate').value;
-  if (!name){showToast('⚠️ Ingresá una descripción');return;}
-  if (!amount){showToast('⚠️ Ingresá un monto válido');return;}
-  if (!date){showToast('⚠️ Seleccioná una fecha');return;}
+  if (!name){showToast('Ingresá una descripción');return;}
+  if (!amount){showToast('Ingresá un monto válido');return;}
+  if (!date){showToast('Seleccioná una fecha');return;}
   const ym=date.slice(0,7);
   if (!data.inversiones[ym]) data.inversiones[ym]=[];
   data.inversiones[ym].push({id:Date.now().toString(),name,amount,date});
   document.getElementById('invName').value='';
   document.getElementById('invAmount').value='';
-  saveData(); renderAll(); showToast('✅ Inversión registrada');
+  saveData(); renderAll(); showToast('Inversión registrada');
 }
 function deleteInversion(ym,id) {
   data.inversiones[ym]=(data.inversiones[ym]||[]).filter(x=>x.id!==id);
-  saveData(); renderAll(); showToast('🗑️ Inversión eliminada');
+  saveData(); renderAll(); showToast('Inversión eliminada');
 }
 function renderInversiones(ym) {
   const invs=data.inversiones[ym]||[];
@@ -760,14 +818,14 @@ function renderInversiones(ym) {
     <div class="inv-item">
       <div class="inv-item-info"><div class="inv-item-name">📦 ${x.name}</div><div class="inv-item-date">${x.date}</div></div>
       <div class="inv-item-amount">${formatGs(x.amount)}</div>
-      <button class="btn-del-inv" onclick="deleteInversion('${ym}','${x.id}')">✕</button>
+      <button class="btn-del-inv" onclick="deleteInversion('${ym}','${x.id}')"><i class="fa-solid fa-xmark"></i></button>
     </div>`).join('');
 }
- 
+
 /* CAPITAL & RESUMEN */
 function saveCapital() {
   data.config.capital=parseInt(document.getElementById('capitalInput').value)||0;
-  saveData(); renderAll(); showToast('✅ Capital guardado');
+  saveData(); renderAll(); showToast('Capital guardado');
 }
 const ALL_MONTHS=['2026-05','2026-06','2026-07','2026-08','2026-09','2026-10','2026-11','2026-12'];
 const ALL_MONTHS_LABELS=['May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
@@ -840,7 +898,7 @@ function drawCharts(annual,totGan,totInv,totNeto) {
   const margenData=annual.map(m=>m.margen);
   chartLineaInst=new Chart(ctxLinea,{type:'line',data:{labels,datasets:[{label:'Margen %',data:margenData,borderColor:'#7a9e7e',backgroundColor:'rgba(122,158,126,0.12)',borderWidth:3,pointBackgroundColor:margenData.map(v=>v>=50?'#4a9b6f':v>=0?'#d4853a':'#c0453a'),pointRadius:6,pointHoverRadius:8,tension:0.35,fill:true}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' Margen: '+ctx.raw+'%'}}},scales:{x:{grid:{display:false},ticks:{font:{family:'Nunito',weight:'700',size:11},color:'#8fa091'}},y:{grid:{color:'#eaf0eb'},ticks:{font:{family:'Nunito',weight:'600',size:10},color:'#8fa091',callback:v=>v+'%'},suggestedMin:-20,suggestedMax:100}}}});
 }
- 
+
 /* TABS */
 function showTab(tab) {
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
@@ -849,7 +907,7 @@ function showTab(tab) {
   event.currentTarget.classList.add('active');
   renderAll();
 }
- 
+
 /* TOAST */
 let toastTimer;
 function showToast(msg) {
@@ -858,19 +916,19 @@ function showToast(msg) {
   clearTimeout(toastTimer);
   toastTimer=setTimeout(()=>t.classList.remove('show'),2500);
 }
- 
+
 /* INIT */
 loadData();
 initMonthSelect();
 document.getElementById('invDate').value=fmtDate(new Date());
 document.getElementById('precioAlmuerzo').value=data.config.precioAlmuerzo;
 document.getElementById('precioCena').value=data.config.precioCena;
- 
+
 // Cerrar modal solo al tocar el fondo oscuro
 document.getElementById('modalOverlay').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });
- 
+
 // Actualizar estilo visual del checkbox al hacer click
 document.getElementById('hasAlmuerzo').addEventListener('change', function() {
   updateCheckboxStyle('hasAlmuerzo','labelAlmuerzo');
@@ -878,13 +936,13 @@ document.getElementById('hasAlmuerzo').addEventListener('change', function() {
 document.getElementById('hasCena').addEventListener('change', function() {
   updateCheckboxStyle('hasCena','labelCena');
 });
- 
+
 // Chart.js
 const chartScript=document.createElement('script');
 chartScript.src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js';
 chartScript.onload=()=>renderAll();
 document.head.appendChild(chartScript);
- 
+
 renderAll();
 </script>
 </body>
